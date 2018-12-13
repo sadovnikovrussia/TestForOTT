@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TestOTT</string>
+    <string name="name_of_hotel">Название отеля</string>
+    <string name="number_of_flights">Количество вариантов перелета</string>
+    <string name="price">Цена</string>
+    <string name="hotel">Отель</string>
+    <string name="from">от</string>
+    <string name="rub">р</string>
+    <string name="company">Компания</string>
+</resources>
