@@ -8,17 +8,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToursRvAdapter extends RecyclerView.Adapter<ToursRvAdapter.TourViewHolder> {
     private static final String TAG = "ToursRvAdapter";
 
     private RvToursListener listener;
-    List<Tour> tours;
+    private List<Tour> tours = new ArrayList<>();
+
+    public void setTours(List<Tour> tours) {
+        this.tours = tours;
+    }
 
     public ToursRvAdapter(List<Tour> tours, RvToursListener rvToursListener) {
         this.tours = tours;
         listener = rvToursListener;
+    }
+
+    public ToursRvAdapter(RvToursListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
