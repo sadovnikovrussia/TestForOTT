@@ -17,8 +17,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements ToursRvAdapter.RvToursListener {
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements Contract.View, ToursRvAdapter.RvToursListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @BindView(R.id.rv_tours)
     RecyclerView rvTours;
@@ -34,9 +34,11 @@ public class MainActivity extends AppCompatActivity implements ToursRvAdapter.Rv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Presenter presenter = new Presenter(this, this);
         adapter = new ToursRvAdapter(tours, this);
         rvTours.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         rvTours.setAdapter(adapter);
+
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: null");
             OttService ottService = ApiFactory.getOttService();
@@ -72,33 +74,14 @@ public class MainActivity extends AppCompatActivity implements ToursRvAdapter.Rv
                                                             },
                                                             throwable -> Log.w(TAG, "onError: ", throwable),
                                                             () -> {
-                                                                tours = TourMaker.makeTours(hotels, flights, companies);
+                                                                tours = TourMaker.makeTours(hotels, flights);
                                                                 Log.d(TAG, "onComplete: " + tours);
                                                                 adapter.tours = tours;
                                                                 adapter.notifyDataSetChanged();
-//                                                                adapter = new ToursRvAdapter(tours, this);
-//                                                                rvTours.setAdapter(adapter);
                                                             }
                                                     )
                                     )
                     );
-//            Disposable subscribe = Observable.concat(hotelsObservable, flightsObservable, companiesObservable)
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeOn(Schedulers.io())
-//                    .cache()
-//                    .subscribe(objects -> {
-//                        Class<? extends List> objectsClass = objects.getClass();
-//                        Log.d(TAG, "onNext: " + objectsClass);
-//                    });
-
-//            hotelsObservable
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeOn(Schedulers.io())
-//                    .cache()
-//                    .subscribe(hotels -> {
-//                        this.hotels = hotels;
-//                        Log.i(TAG, "onNext: " + this.hotels);
-//                    });
         } else {
             Log.d(TAG, "onCreate: notNull");
             tours = (List<Tour>) savedInstanceState.getSerializable("tours");
@@ -118,5 +101,27 @@ public class MainActivity extends AppCompatActivity implements ToursRvAdapter.Rv
     @Override
     public void onTourClick(Tour tour) {
 
+    }
+
+    
+    
+    @Override
+    public void showTours() {
+        Log.d(TAG, "showTours: ");
+    }
+
+    @Override
+    public void showLoading() {
+        Log.d(TAG, "showLoading: ");
+    }
+
+    @Override
+    public void hideLoading() {
+        Log.d(TAG, "hideLoading: ");
+    }
+
+    @Override
+    public void showFlightsDialog() {
+        Log.d(TAG, "showFlightsDialog: ");
     }
 }

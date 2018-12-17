@@ -40,6 +40,7 @@ public class Flight {
         return price;
     }
 
+    @NonNull
     public String getCompanyName() {
         return companyName;
     }
