@@ -10,16 +10,7 @@ public interface Contract {
 
     interface Repository {
 
-        Observable<List<Hotel>> getHotelsObservable();
-
-        Observable<List<Flight>> getFlightsObservable();
-
-        Observable<List<Company>> getCompaniesObservable();
-
         Observable<List<Tour>> getToursObservable();
-
-        void loadTours();
-
 
     }
 

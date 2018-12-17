@@ -5,7 +5,9 @@ import android.util.Log;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class SerpPresenter extends MvpBasePresenter<Contract.SerpView> implements Contract.Presenter {
     private static final String TAG = SerpPresenter.class.getSimpleName();
@@ -40,11 +42,11 @@ public class SerpPresenter extends MvpBasePresenter<Contract.SerpView> implement
     public void onMainActivityCreate() {
         Disposable subscribe = repository.getToursObservable()
                 .doOnSubscribe(disposable -> {
-                    Log.d(TAG, "onSubscribe: ");
+                    Log.d(TAG, "onSubscribe: " + Thread.currentThread().getName());
                     ifViewAttached(Contract.SerpView::showLoading);
                 })
                 .doOnTerminate(() -> {
-                    Log.d(TAG, "onTerminate: ");
+                    Log.d(TAG, "onTerminate: " + Thread.currentThread().getName());
                     ifViewAttached(Contract.SerpView::hideLoading);
                 })
                 .subscribe(tours -> ifViewAttached(view -> view.showTours(tours)));

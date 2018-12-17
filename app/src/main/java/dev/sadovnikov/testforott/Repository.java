@@ -1,9 +1,15 @@
 package dev.sadovnikov.testforott;
 
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function3;
 import io.reactivex.schedulers.Schedulers;
 
 public class Repository implements Contract.Repository {
@@ -14,28 +20,27 @@ public class Repository implements Contract.Repository {
     private Observable<List<Company>> companiesObservable;
     private Observable<List<Tour>> toursObservable;
 
-    private List<Hotel> hotels;
-    private List<Flight> flights;
-    private List<Company> companies;
+    private List<Hotel> hotels = new ArrayList<>();
+    private List<Flight> flights = new ArrayList<>();
+    private List<Company> companies = new ArrayList<>();
+    private List<Tour> tours = new ArrayList<>();
 
 
-    @Override
-    public Observable<List<Hotel>> getHotelsObservable() {
+    private Observable<List<Hotel>> getHotelsObservable() {
         if (hotelsObservable == null) {
             hotelsObservable = ApiFactory.getOttService().getHotels().map(stringListMap -> stringListMap.get("hotels"));
         }
         return hotelsObservable;
     }
 
-    @Override
-    public Observable<List<Flight>> getFlightsObservable() {
+
+    private Observable<List<Flight>> getFlightsObservable() {
         if (flightsObservable == null) {
             flightsObservable = ApiFactory.getOttService().getFlights().map(stringListMap -> stringListMap.get("flights"));
         }
         return flightsObservable;
     }
 
-    @Override
     public Observable<List<Company>> getCompaniesObservable() {
         if (companiesObservable == null) {
             companiesObservable = ApiFactory.getOttService().getCompanies().map(stringListMap -> stringListMap.get("companies"));
@@ -48,23 +53,27 @@ public class Repository implements Contract.Repository {
         return Observable.defer(() -> Observable
                 .zip(getHotelsObservable(),
                         getFlightsObservable(),
-                        TourMaker::makeTours)
+                        getCompaniesObservable(),
+                        (hotels, flights, companies) -> {
+                            Repository.this.companies = companies;
+                            return TourMaker.makeTours(hotels, flights);
+                        })
+                .startWith(tours)
+//                .compose(new ObservableTransformer<List<Tour>, List<Tour>>() {
+//                    @Override
+//                    public ObservableSource<List<Tour>> apply(Observable<List<Tour>> upstream) {
+//                        return null;
+//                    }
+//                })
+                .doOnNext(tours -> {
+                    Log.d(TAG, "onNext: " + Thread.currentThread().getName() + ", " + tours);
+                    this.tours = tours;
+                    if (!this.tours.isEmpty()) this.tours.remove(0);
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
         );
 
     }
 
-    @Override
-    public void loadTours() {
-        Observable<List<Tour>> toursObservable1 = Observable.defer(() -> Observable.zip(
-                getHotelsObservable(),
-                getFlightsObservable(),
-                TourMaker::makeTours));
-
-        Observable<List<Tour>> toursObservable = Observable.zip(
-                getHotelsObservable(),
-                getFlightsObservable(),
-                TourMaker::makeTours);
-    }
 }
